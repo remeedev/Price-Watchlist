@@ -79,6 +79,7 @@ def setup():
         print("Running setup for spreadsheet accountant...")
         url = input("Paste the link of the spreadsheet (including the https:// part): ").split('/')[5]
         print(f"ID set as: {url}")
+        print("Enter a random cell in sheet1 and the press '=' then select the range to be used, this code removes any formulas so don't include them.")
         range_selected = input("Select the part of the spreadsheets with links and price sections before them and paste reference (include the =): ").replace("=", "")
         print(f"Range set as: {range_selected}")
         open("excel_config.json", "w").write(json.dumps({"id":url, "range":range_selected}))
