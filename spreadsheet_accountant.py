@@ -5,6 +5,7 @@ from google.oauth2.credentials import Credentials
 from price_getter import get_price
 from notifier import message_user as notify
 import json
+from datetime import datetime
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -100,7 +101,6 @@ def updatePrices()->dict:
                 set_values[row][col] = 0
             if "https" in val:
                 new_price = get_price(val)
-                print(f"{val.split('/')[3].split('#')[0].replace('-', ' ')} : {new_price}")
                 set_values[row][col-1] = new_price
                 price_list[set_values[row][col]] = new_price
     write(spreadsheet_id, spreadsheet_range, "USER_ENTERED", set_values)
@@ -116,6 +116,8 @@ def main():
     time_elapsed = 0
     while True:
         try:
+            now = datetime.now()
+            print(now.strftime("%d/%m/%Y %H:%M:%S"), "~~ Getting price list, time elapsed without notifying alive: ", time_elapsed)
             if time_elapsed > 60*60*4:
                 time_elapsed = 0
                 notify("Program is still running...")
@@ -142,7 +144,7 @@ def main():
             notify(f"Excel updater has disconnected! Retrying in {interval} seconds...")
             interval+=30
             sleep(interval)
-            time_elapsed += 30
+            time_elapsed += interval
 
 if __name__ == "__main__":
     spreadsheet_id, spreadsheet_range = setup()
