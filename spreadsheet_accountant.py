@@ -5,7 +5,7 @@ from google.oauth2.credentials import Credentials
 from price_getter import get_price
 from notifier import message_user as notify
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -112,14 +112,16 @@ def main():
     """
     prices = {}
     notify("Starting excel updater!")
+    start_time = datetime.now()
+    error_interval = 30
     interval = 30
-    time_elapsed = 0
+    check_times = 5*60
     while True:
         try:
             now = datetime.now()
-            print(now.strftime("%d/%m/%Y %H:%M:%S"), "~~ Getting price list, time elapsed without notifying alive: ", time_elapsed)
-            if time_elapsed > 60*60*4:
-                time_elapsed = 0
+            print(now.strftime("%d/%m/%Y %H:%M:%S"), "~~ Getting price list.")
+            if (now-start_time).seconds > 60*60*4:
+                start_time = datetime.now()
                 notify("Program is still running...")
             interval = 30
             temp_prices = updatePrices()
@@ -138,13 +140,15 @@ def main():
                     elif temp_prices[i] < prices[i]:
                         notify(f"{i} has decreased price from ${format(prices[i], ',')} to ${format(temp_prices[i], ',')}")
             prices = temp_prices
-            sleep(60*5)
-            time_elapsed += 60*5
+            seconds_missing = ((now+timedelta(seconds=check_times)) - datetime.now()).seconds
+            if seconds_missing > check_times:
+                seconds_missing = 5
+            print(f"Check completed, {seconds_missing} seconds until next check of prices...")
+            sleep(seconds_missing)
         except:
             notify(f"Excel updater has disconnected! Retrying in {interval} seconds...")
-            interval+=30
+            interval+=error_interval
             sleep(interval)
-            time_elapsed += interval
 
 if __name__ == "__main__":
     spreadsheet_id, spreadsheet_range = setup()
