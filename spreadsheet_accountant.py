@@ -112,7 +112,7 @@ def main():
     """
     prices = {}
     notify("Starting excel updater!")
-    disconnected = True
+    disconnected = False
     start_time = datetime.now()
     error_interval = 30
     interval = 30
@@ -153,6 +153,7 @@ def main():
                 notify("Excel updater has finally reconnected!")
             sleep(seconds_missing)
         except:
+            disconnected = True
             notify(f"Excel updater has disconnected! Retrying in {interval} seconds...")
             interval+=error_interval
             sleep(interval)
