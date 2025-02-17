@@ -112,6 +112,7 @@ def main():
     """
     prices = {}
     notify("Starting excel updater!")
+    disconnected = True
     start_time = datetime.now()
     error_interval = 30
     interval = 30
@@ -132,6 +133,9 @@ def main():
                     del prices[i]
             keys = list(temp_prices.keys())
             for i in keys:
+                if temp_prices[i] == None:
+                    notify(f"{i}\n\nWasn't able to retrieve the price!")
+                    continue
                 if i not in prices.keys():
                     notify(f"{i} has been added to the watchlist.\nPrice: ${format(temp_prices[i], ',')}")
                 else:
@@ -144,6 +148,9 @@ def main():
             if seconds_missing > check_times:
                 seconds_missing = 5
             print(f"Check completed, {seconds_missing} seconds until next check of prices...")
+            if disconnected:
+                disconnected = False
+                notify("Excel updater has finally reconnected!")
             sleep(seconds_missing)
         except:
             notify(f"Excel updater has disconnected! Retrying in {interval} seconds...")

@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-def get_price(link:str)->int:
+def get_price(link:str)->int|None:
     """
     Returns price of item with link of item, only works with MercadoLibre
     Parameters:
@@ -22,4 +22,4 @@ def get_price(link:str)->int:
     for i in price_pretty:
         if "Antes: " not in str(i):
             return int(i.text.replace("$", "").replace(".", ""))
-    return 0
+    return None
