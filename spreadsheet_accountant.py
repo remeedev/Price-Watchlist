@@ -86,7 +86,7 @@ def setup():
         open("excel_config.json", "w").write(json.dumps({"id":url, "range":range_selected}))
         return url, range_selected
 
-def updatePrices()->dict:
+def update_prices()->dict:
     """
         Reads the spreadsheets, retrieves links, gets price, returns price.
         Returns:
@@ -124,7 +124,7 @@ def main():
             if (now-start_time).seconds > 60*60*4:
                 start_time = datetime.now()
                 notify("Program is still running...")
-            temp_prices = updatePrices()
+            temp_prices = update_prices()
             keys = list(prices.keys())
             for i in keys:
                 if i not in temp_prices.keys():
