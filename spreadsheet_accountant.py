@@ -124,7 +124,6 @@ def main():
             if (now-start_time).seconds > 60*60*4:
                 start_time = datetime.now()
                 notify("Program is still running...")
-            interval = 30
             temp_prices = updatePrices()
             keys = list(prices.keys())
             for i in keys:
@@ -148,6 +147,7 @@ def main():
             if seconds_missing > check_times:
                 seconds_missing = 5
             print(f"Check completed, {seconds_missing} seconds until next check of prices...")
+            interval = 30
             if disconnected:
                 disconnected = False
                 notify("Excel updater has finally reconnected!")
