@@ -2,6 +2,7 @@ import requests, json
 
 bot_token = "TOKEN"
 chat_id = 0
+configured = False
 
 def retrieve_config():
     """
@@ -10,9 +11,9 @@ def retrieve_config():
     try:
         content = json.loads(open("telegram_config.json").read())
         return content["bot_token"], content["chat_id"]
-    except FileNotFoundError as err:
+    except FileNotFoundError:
         print("Config file not found, run 'python notifier.py' to setup bot.")
-        raise err
+        return None
 
 def message_user(message:str, notify:bool = False)->None:
     """
@@ -21,6 +22,9 @@ def message_user(message:str, notify:bool = False)->None:
          message(str): The string of the message to be sent
          notify(bool): Whether to notify the user or not, only works for channels
     """
+    if not configured:
+        print(message)
+        return
     try:
         data = {
             "chat_id":str(chat_id),
@@ -60,4 +64,8 @@ def setup_bot():
 if __name__ == "__main__":
     setup_bot()
 else:
-    bot_token, chat_id = retrieve_config()
+    try:
+        bot_token, chat_id = retrieve_config()
+        configured = True
+    except:
+        pass

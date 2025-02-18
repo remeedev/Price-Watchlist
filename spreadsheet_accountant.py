@@ -3,9 +3,9 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.oauth2.credentials import Credentials
 from price_getter import get_price
-from notifier import message_user as notify
 import json
 from datetime import datetime, timedelta
+from notifier import message_user as notify
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -73,6 +73,7 @@ def setup():
             (str): spreadsheet ID
             (str): range for spreadsheets
     """
+    global notify
     try:
         content = json.loads(open("excel_config.json").read())
         return content["id"], content["range"]
