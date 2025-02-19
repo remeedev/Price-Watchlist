@@ -14,7 +14,7 @@ def get_price(link:str)->int|float|None:
     if shop not in allow_list:
         print("Link is not from the allowed shops!")
         print(f"Allow list: {allow_list}")
-        return 0
+        return None
     req = requests.get(link)
     res = req.text
     soup = BeautifulSoup(res, "html.parser")

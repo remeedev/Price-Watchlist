@@ -12,7 +12,7 @@ def retrieve_config():
         content = json.loads(open("telegram_config.json").read())
         return content["bot_token"], content["chat_id"]
     except FileNotFoundError:
-        print("Config file not found, run 'python notifier.py' to setup bot.")
+        print("Telegram config file not found, run 'python notifier.py' to setup bot.")
         return None
 
 def message_user(message:str, notify:bool = False)->None:
