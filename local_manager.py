@@ -2,7 +2,10 @@ import sqlite3
 from local import setup_db, verify_link
 from price_getter import get_price
 
-def read_db(db):
+def read_db(db:sqlite3.Connection)->None:
+    """
+        Prints the database contents, excluding links
+    """
     cursor = db.cursor()
     listings = cursor.execute("SELECT name, price FROM products")
     listings = listings.fetchall()
@@ -10,7 +13,12 @@ def read_db(db):
     for listing in listings:
         print(f"{listing[0]} ~~ ${format(listing[1], ',')}")
 
-def add_to_db(db):
+def add_to_db(db:sqlite3.Connection)->None:
+    """
+        Adds a link, after verifying, to the database
+        Parameters:
+            db (Connection): The database connection Object.
+    """
     cursor = db.cursor()
     link = input("Enter link of listing to add (including the https:// section): ")
     if verify_link(link):
@@ -23,7 +31,12 @@ def add_to_db(db):
     else:
         print("The link was not verified properly, try again later!")
 
-def remove_from_db(db):
+def remove_from_db(db:sqlite3.Connection)->None:
+    """
+        Removes an item from the database with an index.
+        Parameters:
+            db (Connection): The database connection Object.
+    """
     print("Enter the number of item to remove...")
     cursor = db.cursor()
     listings = cursor.execute("SELECT name, link FROM products")
@@ -40,7 +53,7 @@ def remove_from_db(db):
     cursor.execute("DELETE FROM products WHERE name = ? AND link = ?", link)
     db.commit()
 
-def main():
+def main()->None:
     try:
         open("prices.db", "r")
         db = sqlite3.connect("prices.db")

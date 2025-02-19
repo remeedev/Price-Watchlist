@@ -5,12 +5,22 @@ from time import sleep
 from notifier import message_user as notify
 
 def verify_link(link:str)->bool:
+    """
+        Returns true if a link can be read by price_getter
+        Parameters:
+            link (str): the link of listing (including https://).
+    """
     if get_price(link) == None:
         print("There was an error adding the link.\nTry again later.")
         return False
     return True
 
-def setup_db(db:sqlite3.Connection):
+def setup_db(db:sqlite3.Connection)->None:
+    """
+        The basic setup to add links to the watchlist, only runs for first time run
+        Parameters:
+            db (Connection): The database connection object.
+    """
     print("Welcome to the setup of the local database!")
     cursor = db.cursor()
     cursor.execute("CREATE TABLE if not exists products(name TEXT, link TEXT, price INTEGER)")
@@ -31,14 +41,19 @@ def setup_db(db:sqlite3.Connection):
     db.commit()
     print("Loaded database!")
 
-def constant_updating(db):
+def constant_updating(db:sqlite3.Connection)->None:
+    """
+        Every 5 minutes will update prices inside of the database.
+        Parameters:
+            db (Connection): The database connection object.
+    """
     print("Run local_manager.py to add, remove, or view values in the database.")
     notify("Starting price tracker!")
     prices = {}
     now = datetime.now()
     interval = 30
     error_time = 0
-    check_interval = 30
+    check_interval = 60*5
     cursor = db.cursor()
     retrying = False
     while True:
@@ -83,7 +98,7 @@ def constant_updating(db):
             notify(f"Price tracker has disconnected, retrying in {error_time} seconds!")
             sleep(error_time)
 
-def main():
+def main()->None:
     try:
         open("prices.db", "r")
         db = sqlite3.connect("prices.db")
