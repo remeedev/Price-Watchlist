@@ -41,3 +41,7 @@ To report an issue use the [Issues Tab](https://github.com/remeedev/Price-Watchl
 # Author
 
 [Remeedev](https://github.com/remeedev)
+
+# Donations Appreciated (But not necessary)
+
+[![donate button](https://i.imgur.com/8WT0qBO.png)](https://paypal.me/peinorsm)
