@@ -4,7 +4,7 @@ bot_token = "TOKEN"
 chat_id = 0
 configured = False
 
-def retrieve_config():
+def retrieve_config()->tuple|None:
     """
         Loads the basic configuration for the telegram bot.
     """
@@ -37,7 +37,7 @@ def message_user(message:str, notify:bool = False)->None:
     except:
         print(f"Message couldn't be sent!\nMessage content: {message}")
 
-def setup_bot():
+def setup_bot()->None:
     """
         Retrieves bot ID and from a message sent retrieves the chat id, saves values in file
     """
