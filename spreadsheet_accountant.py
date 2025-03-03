@@ -2,15 +2,40 @@ from time import sleep
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.oauth2.credentials import Credentials
+from google.auth.exceptions import RefreshError
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
 from price_getter import get_price
 import json
 from datetime import datetime, timedelta
 from notifier import message_user as notify
+import os
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 
-def read(spreadsheet_id:str, range_name:str)->list:
+creds = None
+
+def setup_creds()->None:
+    """
+        Sets up the credentials for the user in case they are not already set.
+    """
+    global creds
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "credentials.json", SCOPES
+            )
+            creds = flow.run_local_server(port=0)
+        with open("token.json", "w") as token:
+            token.write(creds.to_json())
+
+setup_creds()
+
+def read(spreadsheet_id:str, range_name:str)->list[list[str | int | float]] | None:
     """
         Reads contents from a google spreadsheet.
         Parameters:
@@ -31,7 +56,7 @@ def read(spreadsheet_id:str, range_name:str)->list:
         return rows
     except HttpError as error:
         print(f"An error occurred: {error}")
-        return error
+        return None
 
 def write(spreadsheet_id:str, range_name:str, value_input_option:str, values:list)->None:
     """
@@ -61,7 +86,7 @@ def write(spreadsheet_id:str, range_name:str, value_input_option:str, values:lis
         return result
     except HttpError as error:
         print(f"An error occurred: {error}")
-        return error
+        return None
 
 spreadsheet_id = ""
 spreadsheet_range = ""
@@ -95,15 +120,21 @@ def update_prices()->dict:
     """
     price_list = {}
     set_values = read(spreadsheet_id, spreadsheet_range)
+    if set_values == None:
+        return price_list
     for row in range(len(set_values)):
         for col in range(len(set_values[row])):
             val = set_values[row][col]
             if val == " $0":
                 set_values[row][col] = 0
-            if "https" in val:
-                new_price = get_price(val)
-                set_values[row][col-1] = new_price
-                price_list[set_values[row][col]] = new_price
+            if type(val) == str:
+                if "https" in val:
+                    new_price = get_price(val)
+                    if new_price != None and new_price >= 0:
+                        set_values[row][col-1] = new_price
+                        price_list[set_values[row][col]] = new_price
+                    elif new_price == -1:
+                        set_values[row][col-1] = "No Longer Available"
     write(spreadsheet_id, spreadsheet_range, "USER_ENTERED", set_values)
     return price_list
 
@@ -153,7 +184,11 @@ def main():
                 disconnected = False
                 notify("Excel updater has finally reconnected!")
             sleep(seconds_missing)
-        except:
+        except RefreshError as e:
+            print("Asking for credentials...")
+            setup_creds()
+        except Exception as e:
+            print(e)
             disconnected = True
             notify(f"Excel updater has disconnected! Retrying in {interval} seconds...")
             interval+=error_interval

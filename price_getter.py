@@ -65,4 +65,7 @@ def get_price(link:str)->int|float|None:
     req = requests.get(link, headers=headers)
     res = req.text
     soup = BeautifulSoup(res, 'lxml')
-    return allow_list[[s.__name__ for s in allow_list].index(shop)](soup)
+    try:
+        return allow_list[[s.__name__ for s in allow_list].index(shop)](soup)
+    except:
+        return -1

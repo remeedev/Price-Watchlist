@@ -17,13 +17,8 @@ Tracks the prices of listings in real time, sends constant updates (Watchlist up
     1. Done
 1. Google Sheets Run
     1. Go through the [Google Sheets API Quickstart](https://developers.google.com/sheets/api/quickstart/python).
-    1. Open the `quickstart.py` (from the API Quickstart).
-    1. Edit the Scopes line to
-    ```
-    SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-    ```
-    1. Run `python quickstart.py` and give access to your application.
-    1. Run `spreadsheet_accountant.py`
+    1. Save the `credentials.json` file.
+    1. Run `spreadsheet_accountant.py` and follow the instructions.
     1. Done
 1. Turn on Telegram notifier
     1. Create a bot by texting @BotFather in Telegram to create a bot.
