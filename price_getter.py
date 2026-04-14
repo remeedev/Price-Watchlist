@@ -3,6 +3,13 @@ from bs4 import BeautifulSoup
 
 prices_requested = 0
 
+def mediaworld(parser:BeautifulSoup) ->float|None:
+    for s in parser.find_all(class_="mms-ui-mBgaT"):
+        maybe_price = s.get_text().split("\n")[0][:-1]
+        if maybe_price.replace(",", "").isdigit():
+            return float(maybe_price.replace(',', '.'))
+    return None
+
 def mercadolibre(parser:BeautifulSoup) -> int|None:
     """
     Gets the price from mercado libre link
@@ -41,7 +48,7 @@ def get_price(link:str)->int|float|None:
         (int) currentPrice of item
     """
     shop = link.split(".")[1]
-    allow_list = [mercadolibre, ebay, amazon]
+    allow_list = [mercadolibre, ebay, amazon, mediaworld]
     if shop not in [s.__name__ for s in allow_list]:
         print("Link is not from the allowed shops!")
         print(f"Allow list: {[s.__name__ for s in allow_list]}")
@@ -67,5 +74,6 @@ def get_price(link:str)->int|float|None:
     soup = BeautifulSoup(res, "html.parser")
     try:
         return allow_list[[s.__name__ for s in allow_list].index(shop)](soup)
-    except:
-        return -1
+    except Exception as e:
+        print(e)
+        return None
